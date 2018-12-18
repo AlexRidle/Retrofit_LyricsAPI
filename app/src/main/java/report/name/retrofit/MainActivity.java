@@ -5,6 +5,10 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -17,11 +21,28 @@ import retrofit2.Response;
 public class MainActivity extends AppCompatActivity {
     RecyclerView recyclerView;
     List<LyricsModel> lyrics;
+    Button submitButton;
+    EditText authorText;
+    EditText titleText;
+    String q_author = null;
+    String q_title = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        submitButton = findViewById(R.id.submitButton);
+        authorText = findViewById(R.id.authorSong);
+        titleText = findViewById(R.id.titleSong);
+    }
+
+    public void searchBtnClick(View view){
+        q_author=authorText.getText().toString();
+        q_title=titleText.getText().toString();
+        findLyrics();
+    }
+
+    private void findLyrics(){
         LyricsApi lyricsApi = Controller.getApi();
         lyrics = new ArrayList<>();
         recyclerView = findViewById(R.id.posts_recycle_view);
@@ -29,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(layoutManager);
         LyricsAdapter adapter = new LyricsAdapter(lyrics);
         recyclerView.setAdapter(adapter);
-        lyricsApi.getData("json", "savior", "rise against", "47e214a656580b59df089328021315f5").enqueue(new Callback<LyricsModel>() {
+        lyricsApi.getData("json", q_title, q_author, "47e214a656580b59df089328021315f5").enqueue(new Callback<LyricsModel>() {
 
             @Override
             public void onResponse(Call<LyricsModel> call, Response<LyricsModel> response) {
@@ -42,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
                 t.printStackTrace();
                 Toast.makeText(MainActivity.this, "An error occurred during networking", Toast.LENGTH_SHORT).show();
             }
+        });
 //        lyricsApi.getData("json", "savior", "rise against", "47e214a656580b59df089328021315f5").enqueue(new Callback<List<LyricsModel>>() {
 //            public void onResponse(@NonNull Call<List<LyricsModel>> call, @NonNull Response<List<LyricsModel>> response) {
 //                lyrics.addAll(response.body());
@@ -55,7 +77,6 @@ public class MainActivity extends AppCompatActivity {
 //                Toast.makeText(MainActivity.this, "An error occurred during networking", Toast.LENGTH_SHORT).show();
 //            }
 //        });
-        });
     }
 }
 
